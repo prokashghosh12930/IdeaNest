@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Emilys+Candy&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer utilities {
+  .sidebar-icon {
+    @apply relative flex items-center justify-center 
+    h-12 w-12 mt-3 mb-2 mx-auto  
+   hover:text-white 
+    cursor-pointer  ;
+  }
+
+  .sidebar-tooltip {
+    @apply absolute w-auto p-2 m-2 min-w-max left-16 rounded-md shadow-md
+    text-white bg-gray-900 
+    text-xs font-bold 
+    transition-all duration-100 scale-0 origin-left;
+  }
+  .sidebar-hr {
+    @apply bg-gray-200 dark:bg-gray-800 
+    border border-gray-200 dark:border-gray-800 rounded-full
+    mx-2;
+  }
+  .asd {
+    @apply text-rose-500;
+  }
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px; 
+}
+
+/* Track */
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: none; 
+  display:none;
+}
+ 
+/* Handle */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e5e8ec; 
+  border-radius:24px;
+}
+
+ 
+}
