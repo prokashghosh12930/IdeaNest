@@ -23,6 +23,7 @@ const Explore = () => {
 
    useEffect(()=> {
       axios.post('http://localhost/api/fetchImage.php').then((result)=>{ 
+        console.log("fetch image:- ",result.data);
        result.data.map(image => (
          setImage(result.data)
        )); 

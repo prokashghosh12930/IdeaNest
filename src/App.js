@@ -12,6 +12,7 @@ import Profile from './components/auth/Profile.jsx';
 import Subscription from './components/auth/Subscription.jsx'; 
 import Api from './components/auth/Api.jsx'; 
 import Upload from './components/auth/Upload.jsx';
+import Contests from './components/pages/Contests.jsx';
 
 
 const  App = () => {
@@ -24,6 +25,7 @@ const  App = () => {
       <Route path="explore" element={<Explore />} />
       <Route path="pricing" element={<Pricing />} />
       <Route path="license" element={<License />} />  
+      <Route path="contests" element={<Contests />} />
       </Route> 
       
       <Route path="signup" element={<Signup />} />

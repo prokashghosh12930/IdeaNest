@@ -94,6 +94,11 @@ const Navbar = () => {
         <NavLink to="explore"><NavItem name="Explore" /></NavLink>
         <NavLink to="license"><NavItem name="License"  /></NavLink>
         <NavLink to="pricing"><NavItem name="Pricing"  /></NavLink>
+        {
+  auth && <NavLink to="contests">
+  <NavItem name="Contests" />
+  </NavLink>
+ }
  {
   !auth && <NavLink to="signup">
   <li  className="block py-2 px-7 text-white text-lg cursor-pointer bg-[#000] rounded-3xl">Join 
@@ -108,9 +113,7 @@ const Navbar = () => {
   </li>
   </NavLink>
  }
-        
-
-
+       
       </ul>
     </div>
   </div>
