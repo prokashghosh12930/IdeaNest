@@ -1,63 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Footer from './Footer';
 
 const Contests = () => {
   const [uploadedImages, setUploadedImages] = useState({});
+  const [currentContests, setCurrentContests] = useState([]);
+  const [upcomingContests, setUpcomingContests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleImageUpload = (contestId, file) => {
-    setUploadedImages((prev) => ({
-      ...prev,
-      [contestId]: file,
-    }));
+  useEffect(() => {
+    axios.get('http://localhost/api/get_contests.php')
+      .then(res => {
+        setCurrentContests(res.data.current || []);
+        setUpcomingContests(res.data.upcoming || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Failed to load contests.');
+        setLoading(false);
+      });
+  }, []);
+
+  const handleImageUpload = async (contestId, file) => {
+    const userId = localStorage.getItem('user_id');
+    console.log("User ID - ", userId);
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('contest_id', contestId);
+    if (userId) formData.append('user_id', userId);
+
+    try {
+      console.log("Api call- ", formData.get('user_id'));
+      const response = await fetch('http://localhost/api/upload_submission.php', {
+        method: 'POST',
+        body: formData
+      });
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseErr) {
+        console.error('Upload API did not return valid JSON:', text);
+        alert('Image upload failed: Invalid server response.');
+        return;
+      }
+      console.log("data - ", data);
+      if (data.success) {
+        setUploadedImages((prev) => ({
+          ...prev,
+          [contestId]: file,
+        }));
+      } else {
+        alert(data.error || 'Image upload failed.');
+      }
+    } catch (err) {
+      console.log("Error uploading image:", err);
+      alert('Image upload failed.');
+    }
   };
-
-  const currentContests = [
-    {
-      id: 'current1',
-      title: 'Spring Click Contest',
-      description: 'Upload your best spring-themed photo.',
-      image: require('../../assets/images/nature.jpg'),
-      deadline: 'May 30, 2025',
-    },
-    {
-      id: 'current2',
-      title: 'Nature Wonders',
-      description: 'Show the beauty of nature in a single image.',
-      image: require('../../assets/images/mountain.jpg'),
-      deadline: 'June 10, 2025',
-    },
-  ];
-
-  const upcomingContests = [
-    {
-      id: 'upcoming1',
-      title: 'Urban Vibes',
-      description: 'Capture the life and vibe of your city.',
-      image: require('../../assets/images/planet.png'),
-      start: 'June 15, 2025',
-    },
-    {
-      id: 'upcoming2',
-      title: 'Pet Moments',
-      description: 'Cute, funny, or majestic – show off your pet!',
-      image: require('../../assets/images/art.jpg'),
-      start: 'July 1, 2025',
-    },
-    {
-      id: 'upcoming3',
-      title: 'Monochrome Magic',
-      description: 'Everything looks cooler in black and white.',
-      image: require('../../assets/images/sky.jpg'),
-      start: 'July 20, 2025',
-    },
-    {
-      id: 'upcoming4',
-      title: 'Foodie Delight',
-      description: 'Present your favorite dish with style.',
-      image: require('../../assets/images/space.jpg'),
-      start: 'August 5, 2025',
-    },
-  ];
 
   const ContestCard = ({ contest, isCurrent }) => (
     <div className="bg-white shadow-lg rounded-2xl p-6 mb-6 w-full md:w-80 border border-[#e6e6f0] flex flex-col items-center transition-transform hover:scale-105 hover:shadow-xl">
@@ -107,24 +108,39 @@ const Contests = () => {
         <p className="text-lg text-gray-700 text-center mb-10">
           Participate in our latest photo contests. You can upload only one image per contest.
         </p>
+        {loading ? (
+          <div className="text-center text-lg text-[#5f30e2]">Loading contests...</div>
+        ) : error ? (
+          <div className="text-center text-red-500">{error}</div>
+        ) : (
+          <>
+            <section className="mb-12 bg-[#f9f9fb] rounded-xl p-6 shadow-sm">
+              <h2 className="text-2xl font-semibold mb-6 text-[#5f30e2]">Current Running Contests</h2>
+              <div className="flex flex-wrap gap-8 justify-center">
+                {currentContests.length === 0 ? (
+                  <div className="text-gray-500">No current contests.</div>
+                ) : (
+                  currentContests.map((contest) => (
+                    <ContestCard key={contest.id} contest={contest} isCurrent={true} />
+                  ))
+                )}
+              </div>
+            </section>
 
-        <section className="mb-12 bg-[#f9f9fb] rounded-xl p-6 shadow-sm">
-          <h2 className="text-2xl font-semibold mb-6 text-[#5f30e2]">Current Running Contests</h2>
-          <div className="flex flex-wrap gap-8 justify-center">
-            {currentContests.map((contest) => (
-              <ContestCard key={contest.id} contest={contest} isCurrent={true} />
-            ))}
-          </div>
-        </section>
-
-        <section className="bg-[#f9f9fb] rounded-xl p-6 shadow-sm">
-          <h2 className="text-2xl font-semibold mb-6 text-[#5f30e2]">Upcoming Contests</h2>
-          <div className="flex flex-wrap gap-8 justify-center">
-            {upcomingContests.map((contest) => (
-              <ContestCard key={contest.id} contest={contest} isCurrent={false} />
-            ))}
-          </div>
-        </section>
+            <section className="bg-[#f9f9fb] rounded-xl p-6 shadow-sm">
+              <h2 className="text-2xl font-semibold mb-6 text-[#5f30e2]">Upcoming Contests</h2>
+              <div className="flex flex-wrap gap-8 justify-center">
+                {upcomingContests.length === 0 ? (
+                  <div className="text-gray-500">No upcoming contests.</div>
+                ) : (
+                  upcomingContests.map((contest) => (
+                    <ContestCard key={contest.id} contest={contest} isCurrent={false} />
+                  ))
+                )}
+              </div>
+            </section>
+          </>
+        )}
       </div>
       <Footer />
     </>
